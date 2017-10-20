@@ -50,8 +50,14 @@ public class Insta extends Instagram {
     public List<Account> getFollowers(long userId, int count) throws IOException {
         boolean hasNext = true;
         List<Account> followers = new ArrayList<Account>();
-        String followsLink = Endpoint.getFollowersLinkVariables(userId, 200, "");
-//        String followsLink = "https://www.instagram.com/graphql/query/?query_id=17851374694183129&variables={%22id%22:%2026563598,%20%22first%22:%20200,%20%22after%22:%20%22AQAwDUVVFpwUaz9IUB9Oybkp-7ajBIWfZQIfGaLzV--hCzVxz7O1QHM05QnjutyrGMxTV_-ccmtXrIjJxKiJfjs-JeRri09xPhKbSAwkURivyw%22}";
+//        Main main = new Main();
+        String fullLink = Main.getLink();
+        String followsLink;
+//        if(fullLink == null){
+//        followsLink = Endpoint.getFollowersLinkVariables(userId, 200, "");
+//        } else{
+//            followsLink = fullLink;}
+            followsLink = "https://www.instagram.com/graphql/query/?query_id=17851374694183129&variables={\"id\": 26563598, \"first\": 200, \"after\": \"AQBiHVi2rY5bJBZbX-yPn3G6OdjDkdG5XXlDNeOBnXONgmOmtohiMn8LZVgLLTdeUpuAuJ7SdSbv_KebXmyssaYrcbgmtImGPfTvUfXH1xbWiA\"}";
         while (followers.size() < count && hasNext) {
             Request request = new Request.Builder()
                     .url(followsLink)
@@ -60,9 +66,6 @@ public class Insta extends Instagram {
             try {
                 Response response = this.httpClient.newCall(withCsrfToken(request)).execute();
                 String jsonString = response.body().string();
-                String lasturl = request.url().toString();
-
-                System.out.println("!!!!!!!!!!!!!" + lasturl);
                 response.body().close();
                 Map commentsMap = gson.fromJson(jsonString, Map.class);
                 Map edgeFollow = (Map) ((Map) ((Map) commentsMap.get("data")).get("user")).get("edge_followed_by");
@@ -77,7 +80,8 @@ public class Insta extends Instagram {
                 boolean hasNexPage = (Boolean) ((Map) edgeFollow.get("page_info")).get("has_next_page");
                 if (hasNexPage) {
                     followsLink = Endpoint.getFollowersLinkVariables(userId, 200, (String) ((Map) edgeFollow.get("page_info")).get("end_cursor"));
-                    System.out.println("!!!! " + followsLink + " !!!!!");
+
+
                     hasNext = true;
                 } else {
                     hasNext = false;
@@ -85,7 +89,11 @@ public class Insta extends Instagram {
             } catch (InstagramException e){
                 try {
                     System.out.println("=======ЗАМЕНА=======");
-                    Thread.sleep(30000);
+                    Thread.sleep(300);
+                    System.out.println(followsLink);
+                    Main.showLink(followsLink);
+                    return followers;
+
 
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();

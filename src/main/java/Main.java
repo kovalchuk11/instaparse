@@ -19,17 +19,34 @@ import java.util.List;
 public class Main {
     private static AuthenticatedInsta client;
     private static List<Account> followers;
+    private static String link;
+    private static int c = 2;
+
+    public static String getLink() {
+        return link;
+    }
+    public static void setLink(String link) {
+        Main.link = link;
+    }
 
     public static void main(String[] args) throws IOException {
-        start(1);
+        for (int i = 0; i < 13 ; i++) {
+            startrun();
+        }
+
+    }
+    public static void startrun()throws IOException{
+        start();
         try {
             testFollowers();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
     public static void start()throws IOException{
-        Credentials credentials = new Credentials();
+
+        Credentials credentials = new Credentials(c);
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
         OkHttpClient httpClient = new OkHttpClient.Builder()
@@ -42,40 +59,44 @@ public class Main {
         client.basePage();
         client.login(credentials.getLogin(), credentials.getPassword());
         client.basePage();
+        if(c <= 12)
+            c++;
+        else c = 1;
     }
-    public static void start(int i)throws IOException{
-        Credentials credentials = new Credentials();
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
-        OkHttpClient httpClient = new OkHttpClient.Builder()
-                .addNetworkInterceptor(loggingInterceptor)
-                .addInterceptor(new UserAgentInterceptor(UserAgents.WIN10_FIREFOX))
-                .addInterceptor(new ErrorInterceptor())
-                .cookieJar(new DefaultCookieJar(new CookieHashSet()))
-                .build();
-        client = new Insta(httpClient);
-        client.basePage();
-        client.login("pho.tour", "1243tour");
-        client.basePage();
-    }
+//    public static void start(int i)throws IOException{
+//        Credentials credentials = new Credentials();
+//        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+//        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+//        OkHttpClient httpClient = new OkHttpClient.Builder()
+//                .addNetworkInterceptor(loggingInterceptor)
+//                .addInterceptor(new UserAgentInterceptor(UserAgents.WIN10_FIREFOX))
+//                .addInterceptor(new ErrorInterceptor())
+//                .cookieJar(new DefaultCookieJar(new CookieHashSet()))
+//                .build();
+//        client = new Insta(httpClient);
+//        client.basePage();
+//        client.login("pho.tour", "1243tour");
+//        client.basePage();
+//    }
     public static void testFollowers() throws Exception {
 
         Account account = client.getAccountByUsername("elenagord");
-        followers = client.getFollowers(account.id, 10000);
+        followers = client.getFollowers(account.id, 50);
         System.out.println("=======");
         System.out.println(followers.size());
-        FileWriter writer = new FileWriter("C:\\Users\\I\\Downloads\\output3.txt");
+        if (followers.size() == 0){
+            return;
+        }
+        FileWriter writer = new FileWriter("C:\\Users\\I\\Downloads\\output24.txt", true);
         for (Account a : followers) {
-            System.out.println(a.username);
             String n = a.username;
             writer.write(n + System.getProperty("line.separator"));
         }
         writer.close();
-//        start();
-//        try {
-//            testFollowers();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        if (followers.size() < 50)
+            startrun();
+    }
+    public static void showLink(String link){
+        setLink(link);
     }
 }

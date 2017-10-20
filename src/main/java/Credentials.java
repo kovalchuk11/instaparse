@@ -13,21 +13,21 @@ final class Credentials {
     private String login;
     private String password;
 
-    Credentials() throws IOException {
-        Properties properties = new Properties();
 
+    Credentials(int c) throws IOException {
+        Properties properties = new Properties();
+        String lo = "login" + c;
+        String pa = "password" + c;
         try(FileInputStream is = new FileInputStream(PATH)) {
 
             if (is == null) {
                 throw new IOException("can't find credentials file");
             }
             properties.load(is);
-            login = properties.getProperty("login");
-            password = properties.getProperty("password");
+            login = properties.getProperty(lo);
+            password = properties.getProperty(pa);
+
         }
-//        catch (IOException ex){
-//
-//        }
     }
 
     String getLogin() {
