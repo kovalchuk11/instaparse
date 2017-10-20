@@ -18,9 +18,10 @@ import java.util.List;
 
 public class Main {
     private static AuthenticatedInsta client;
+    private static List<Account> followers;
 
     public static void main(String[] args) throws IOException {
-        start();
+        start(1);
         try {
             testFollowers();
         } catch (Exception e) {
@@ -37,24 +38,44 @@ public class Main {
                 .addInterceptor(new ErrorInterceptor())
                 .cookieJar(new DefaultCookieJar(new CookieHashSet()))
                 .build();
-        client = new Instagram(httpClient);
+        client = new Insta(httpClient);
         client.basePage();
         client.login(credentials.getLogin(), credentials.getPassword());
+        client.basePage();
+    }
+    public static void start(int i)throws IOException{
+        Credentials credentials = new Credentials();
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+        OkHttpClient httpClient = new OkHttpClient.Builder()
+                .addNetworkInterceptor(loggingInterceptor)
+                .addInterceptor(new UserAgentInterceptor(UserAgents.WIN10_FIREFOX))
+                .addInterceptor(new ErrorInterceptor())
+                .cookieJar(new DefaultCookieJar(new CookieHashSet()))
+                .build();
+        client = new Insta(httpClient);
+        client.basePage();
+        client.login("pho.tour", "1243tour");
         client.basePage();
     }
     public static void testFollowers() throws Exception {
 
         Account account = client.getAccountByUsername("elenagord");
-        List<Account> followers = client.getFollowers(account.id, 50);
+        followers = client.getFollowers(account.id, 10000);
         System.out.println("=======");
         System.out.println(followers.size());
-        FileWriter writer = new FileWriter("C:\\Users\\I\\Downloads\\output.txt");
+        FileWriter writer = new FileWriter("C:\\Users\\I\\Downloads\\output3.txt");
         for (Account a : followers) {
             System.out.println(a.username);
             String n = a.username;
             writer.write(n + System.getProperty("line.separator"));
         }
         writer.close();
-
+//        start();
+//        try {
+//            testFollowers();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 }
