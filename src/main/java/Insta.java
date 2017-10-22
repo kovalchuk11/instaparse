@@ -7,6 +7,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Insta extends Instagram {
+    List<Account> followers = new ArrayList<Account>();
 
 
     public Insta(OkHttpClient httpClient) {
@@ -49,23 +51,26 @@ public class Insta extends Instagram {
     @Override
     public List<Account> getFollowers(long userId, int count) throws IOException {
         boolean hasNext = true;
-        List<Account> followers = new ArrayList<Account>();
-//        Main main = new Main();
+
         String fullLink = Main.getLink();
         String followsLink;
-//        if(fullLink == null){
-//        followsLink = Endpoint.getFollowersLinkVariables(userId, 200, "");
-//        } else{
-//            followsLink = fullLink;}
-            followsLink = "https://www.instagram.com/graphql/query/?query_id=17851374694183129&variables={\"id\": 26563598, \"first\": 200, \"after\": \"AQBiHVi2rY5bJBZbX-yPn3G6OdjDkdG5XXlDNeOBnXONgmOmtohiMn8LZVgLLTdeUpuAuJ7SdSbv_KebXmyssaYrcbgmtImGPfTvUfXH1xbWiA\"}";
+        if(fullLink == null){
+        followsLink = Endpoint.getFollowersLinkVariables(userId, 200, "");
+        } else{
+            followsLink = fullLink;}
+//            followsLink = "https://www.instagram.com/graphql/query/?query_id=17851374694183129&variables={\"id\": 26563598, \"first\": 200, \"after\": \"AQBiHVi2rY5bJBZbX-yPn3G6OdjDkdG5XXlDNeOBnXONgmOmtohiMn8LZVgLLTdeUpuAuJ7SdSbv_KebXmyssaYrcbgmtImGPfTvUfXH1xbWiA\"}";
         while (followers.size() < count && hasNext) {
             Request request = new Request.Builder()
                     .url(followsLink)
                     .header("Referer", Endpoint.BASE_URL + "/")
                     .build();
+            FileWriter writer = new FileWriter("C:\\Users\\I\\Downloads\\url10.txt", true);
+                writer.write(followsLink + System.getProperty("line.separator"));
+            writer.close();
             try {
                 Response response = this.httpClient.newCall(withCsrfToken(request)).execute();
                 String jsonString = response.body().string();
+
                 response.body().close();
                 Map commentsMap = gson.fromJson(jsonString, Map.class);
                 Map edgeFollow = (Map) ((Map) ((Map) commentsMap.get("data")).get("user")).get("edge_followed_by");
@@ -73,9 +78,9 @@ public class Insta extends Instagram {
                 for (Object edgeObj : edges) {
                     Account account = account((Map) edgeObj);
                     followers.add(account);
-                    if (followers.size() == count) {
-                        return followers;
-                    }
+//                    if (followers.size() == count) {
+//                        return followers;
+//                    }
                 }
                 boolean hasNexPage = (Boolean) ((Map) edgeFollow.get("page_info")).get("has_next_page");
                 if (hasNexPage) {
@@ -89,11 +94,11 @@ public class Insta extends Instagram {
             } catch (InstagramException e){
                 try {
                     System.out.println("=======ЗАМЕНА=======");
-                    Thread.sleep(300);
                     System.out.println(followsLink);
-                    Main.showLink(followsLink);
-                    return followers;
-
+                    Thread.sleep(3000);
+                    Main.allbase(followsLink, followers);
+                    followers.clear();
+                    Main.startrun();
 
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();

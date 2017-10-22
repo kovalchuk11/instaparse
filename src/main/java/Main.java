@@ -13,12 +13,18 @@ import okhttp3.logging.HttpLoggingInterceptor;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class Main {
     private static AuthenticatedInsta client;
-    private static List<Account> followers;
+
+    public static List<Account> getAllFollowers() {
+        return allFollowers;
+    }
+
+    private static List<Account> allFollowers = new ArrayList<>();
     private static String link;
     private static int c = 2;
 
@@ -30,9 +36,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        for (int i = 0; i < 13 ; i++) {
             startrun();
-        }
 
     }
     public static void startrun()throws IOException{
@@ -81,22 +85,30 @@ public class Main {
     public static void testFollowers() throws Exception {
 
         Account account = client.getAccountByUsername("elenagord");
-        followers = client.getFollowers(account.id, 50);
-        System.out.println("=======");
-        System.out.println(followers.size());
-        if (followers.size() == 0){
-            return;
+        client.getFollowers(account.id, 173000);
+        System.out.println("ПО ПЛАНУ");
+//        System.out.println(allFollowers.size());
+//        if (allFollowers.size() == 0){
+//            return;
+//        }
+
+//        if (followers.size() < 173000)
+//            startrun();
+    }
+    public static void allbase(String link,  List<Account> allFollowers1) throws IOException {
+        setLink(link);
+        allFollowers.size();
+        for (Account a : allFollowers1) {
+//            if(allFollowers.size() < 173000)
+            allFollowers.add(a);
         }
-        FileWriter writer = new FileWriter("C:\\Users\\I\\Downloads\\output24.txt", true);
-        for (Account a : followers) {
-            String n = a.username;
-            writer.write(n + System.getProperty("line.separator"));
+        FileWriter writer = new FileWriter("C:\\Users\\I\\Downloads\\output466.txt", true);
+        for (Account a : allFollowers1) {
+            writer.write(a.username + System.getProperty("line.separator"));
         }
         writer.close();
-        if (followers.size() < 50)
-            startrun();
-    }
-    public static void showLink(String link){
-        setLink(link);
+//        if (allFollowers.size() > 173000)
+//            return;
+
     }
 }
