@@ -54,6 +54,7 @@ public class Insta extends Instagram {
 
         String fullLink = Main.getLink();
         String followsLink;
+        String after;
         if(fullLink == null){
         followsLink = Endpoint.getFollowersLinkVariables(userId, 200, "");
         } else{
@@ -64,7 +65,7 @@ public class Insta extends Instagram {
                     .url(followsLink)
                     .header("Referer", Endpoint.BASE_URL + "/")
                     .build();
-            FileWriter writer = new FileWriter("C:\\Users\\I\\Downloads\\url10.txt", true);
+            FileWriter writer = new FileWriter("C:\\Users\\I\\Downloads\\urlmama_bond007.txt", true);
                 writer.write(followsLink + System.getProperty("line.separator"));
             writer.close();
             try {
@@ -78,33 +79,32 @@ public class Insta extends Instagram {
                 for (Object edgeObj : edges) {
                     Account account = account((Map) edgeObj);
                     followers.add(account);
-//                    if (followers.size() == count) {
-//                        return followers;
-//                    }
+                }
+                if (followers.size() >= 15000) {
+                    change(followsLink, followers);
                 }
                 boolean hasNexPage = (Boolean) ((Map) edgeFollow.get("page_info")).get("has_next_page");
                 if (hasNexPage) {
-                    followsLink = Endpoint.getFollowersLinkVariables(userId, 200, (String) ((Map) edgeFollow.get("page_info")).get("end_cursor"));
-
+                    after = (String) ((Map) edgeFollow.get("page_info")).get("end_cursor");
+                    followsLink = Endpoint.getFollowersLinkVariables(userId, 200, after);
 
                     hasNext = true;
                 } else {
                     hasNext = false;
                 }
-            } catch (InstagramException e){
-                try {
-                    System.out.println("=======ЗАМЕНА=======");
-                    System.out.println(followsLink);
-                    Thread.sleep(3000);
-                    Main.allbase(followsLink, followers);
-                    followers.clear();
-                    Main.startrun();
-
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
+            } catch (InstagramException | InterruptedException e){
+                e.printStackTrace();
             }
         }
+        Main.allbase(followsLink, followers);
         return followers;
+    }
+    public void change(String followsLink, List<Account> followers) throws InterruptedException, IOException {
+        System.out.println("=======ЗАМЕНА=======");
+        System.out.println(followsLink);
+        Thread.sleep(3000);
+        Main.allbase(followsLink, followers);
+        followers.clear();
+        Main.startrun();
     }
 }
